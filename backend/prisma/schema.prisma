@@ -1,0 +1,155 @@
+// RescueGrid AI — Prisma Schema (SQLite)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String         @id @default(uuid())
+  name        String
+  email       String         @unique
+  phone       String?        @unique
+  password    String
+  role        String         @default("CITIZEN")
+  city        String?
+  state       String?
+  avatarUrl   String?
+  lastLogin   DateTime?
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  reports       Report[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+}
+
+model Incident {
+  id                String               @id @default(cuid())
+  incidentNumber    String               @unique
+  type              String               @default("OTHER")
+  description       String
+  latitude          Float
+  longitude         Float
+  locationName      String?
+  peopleAffected    Int                  @default(0)
+  vulnerablePeople  Boolean              @default(false)
+  severity          String               @default("MODERATE")
+  accessibility     String               @default("Unknown")
+  timeSensitivity   String               @default("Moderate")
+  priorityScore     Float                @default(0)
+  confidenceScore   Float                @default(0)
+  status            String               @default("REPORTED")
+  isDevelopmentData Boolean              @default(false)
+  resolvedAt        DateTime?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  reports           Report[]
+  assignments       ResourceAssignment[]
+  alerts            Alert[]
+  auditLogs         AuditLog[]
+}
+
+model Report {
+  id                 String             @id @default(uuid())
+  incidentId         String?
+  reporterId         String?
+  type               String             @default("TEXT")
+  text               String?
+  emergencyType      String?
+  peopleAffected     String?
+  immediateDanger    String?
+  voiceUrl           String?
+  imageUrl           String?
+  transcript         String?
+  latitude           Float?
+  longitude          Float?
+  locationName       String?
+  confidence         Float              @default(0)
+  verificationStatus String             @default("SUBMITTED")
+  aiStatus           String?            @default("PENDING")
+  aiAnalysis         String?
+  isDevelopmentData  Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  incident           Incident?          @relation(fields: [incidentId], references: [id])
+  reporter           User?              @relation(fields: [reporterId], references: [id])
+}
+
+model Resource {
+  id                String               @id @default(uuid())
+  name              String
+  type              String               @default("RESCUE_TEAM")
+  latitude          Float
+  longitude         Float
+  locationName      String?
+  status            String               @default("AVAILABLE")
+  capability        String
+  capacity          Int                  @default(10)
+  contactInfo       String?
+  isDevelopmentData Boolean              @default(false)
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  assignments       ResourceAssignment[]
+}
+
+model ResourceAssignment {
+  id          String    @id @default(uuid())
+  incidentId  String
+  resourceId  String
+  assignedAt  DateTime  @default(now())
+  eta         Int?
+  status      String    @default("ASSIGNED")
+  notes       String?
+  completedAt DateTime?
+
+  incident    Incident  @relation(fields: [incidentId], references: [id])
+  resource    Resource  @relation(fields: [resourceId], references: [id])
+}
+
+model Alert {
+  id             String    @id @default(uuid())
+  incidentId     String?
+  title          String
+  message        String
+  severity       String    @default("HIGH")
+  isRead         Boolean   @default(false)
+  isAcknowledged Boolean   @default(false)
+  acknowledgedAt DateTime?
+  createdAt      DateTime  @default(now())
+
+  incident       Incident? @relation(fields: [incidentId], references: [id])
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  userId     String
+  title      String
+  message    String
+  reportId   String?
+  incidentId String?
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id          String    @id @default(uuid())
+  userId      String?
+  incidentId  String?
+  action      String
+  details     String?
+  createdAt   DateTime  @default(now())
+
+  user        User?     @relation(fields: [userId], references: [id])
+  incident    Incident? @relation(fields: [incidentId], references: [id])
+}

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="RescueGrid AI — AI-powered disaster response coordination platform. Turn fragmented emergency reports into prioritized incidents and actionable rescue decisions." />
+    <meta name="theme-color" content="#102a43" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>RescueGrid AI — Disaster Response Coordination</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      window.onerror = function(msg, src, line, col, err) {
+        document.getElementById('root').innerHTML =
+          '<div style="padding:40px;font-family:monospace;background:#0a1929;color:#fff;min-height:100vh">' +
+          '<h1 style="color:#f87171;margin-bottom:16px">⚠️ JS Error (pre-React)</h1>' +
+          '<pre style="background:#1e293b;padding:20px;border-radius:8px;color:#fca5a5;white-space:pre-wrap">' +
+          msg + '\n\nSource: ' + src + ':' + line + ':' + col +
+          (err ? '\n\n' + err.stack : '') + '</pre></div>';
+      };
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
